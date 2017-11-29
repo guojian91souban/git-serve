@@ -1,0 +1,27 @@
+FROM       ubuntu:14.04
+MAINTAINER guojian_k@qq.com
+
+# sshd 服务
+RUN apt-get update
+
+RUN apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
+
+RUN echo 'root:root' |chpasswd
+
+RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+
+EXPOSE 22
+
+CMD    ["/usr/sbin/sshd", "-D"]
+# end
+
+# git-serve
+RUN apt-get -y install git
+RUN useradd git
+RUN echo 'git:git' | chpasswd
+RUN mkdir -p /home/git && chown git. /home/git
+RUN usermod -s /usr/bin/git-shell git
+RUN git init --bare /data.git && chown git. -R /data.git
+# end
